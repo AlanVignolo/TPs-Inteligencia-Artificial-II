@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from Grafico import Graficar
+from Grafico import Grafico
 
 # Funcion que devuelve la distancia entre dos puntos para ser utilizada como heuristica
 def heuristica (x,y,j,k):
@@ -84,7 +84,7 @@ def Aestrella():
         if nodoactual == nodofinal:
             break
     
-    Graf=Graficar(Cantfilas*6,Cantcolumnas*4,Obstaculos,nodosvisitados,nodofinalp)
-    Graf.dibujar_grafico()
+    Grafico1=Grafico(Cantfilas*6,Cantcolumnas*4,Obstaculos,nodosvisitados,nodofinalp)
+    Grafico1.dibujar_grafico()
 
 Aestrella()
