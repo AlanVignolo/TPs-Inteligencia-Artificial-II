@@ -1,6 +1,6 @@
 import tkinter as tk
 
-class Grafic:
+class Graficar:
     def __init__(self, filas, columnas, obstaculos, camino,final):
         self.filas = filas
         self.columnas = columnas

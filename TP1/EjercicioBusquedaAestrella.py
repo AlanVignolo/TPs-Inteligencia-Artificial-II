@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
-from Grafico import Grafic
+from Grafico import Graficar
 
+# Funcion que devuelve la distancia entre dos puntos para ser utilizada como heuristica
 def heuristica (x,y,j,k):
     return (abs(x-j)**2+abs(y-k)**2)**0.5 * 100
 
+# Funcion que calcula los nodos donde se encuentran estantes
 def CalcObstaculos(Cantfilas,Cantcolumnas):
 
     Obstaculos = []
@@ -29,14 +31,19 @@ def CalcObstaculos(Cantfilas,Cantcolumnas):
             Obstaculos.append((i-1,j-1))
     return Obstaculos
 
+# Funcion que calcula el camino mas corto entre dos puntos utilizando el algoritmo de busqueda A*
 def Aestrella():
 
+    # Cantidad de filas y columnas de estantes
     Cantfilas = 8
     Cantcolumnas= 9
 
+    # Nodo final y nodo inicial
     nodofinal = [15,14]
-    nodofinalp = nodofinal.copy()
     nodoinicial = [0,0]
+
+    # Algoritmo de busqueda A*
+    nodofinalp = nodofinal.copy()
     nodoactual = nodoinicial
 
     nodosabiertos = {}
@@ -76,7 +83,8 @@ def Aestrella():
 
         if nodoactual == nodofinal:
             break
-    Graf=Grafic(Cantfilas*6,Cantcolumnas*4,Obstaculos,nodosvisitados,nodofinalp)
+    
+    Graf=Graficar(Cantfilas*6,Cantcolumnas*4,Obstaculos,nodosvisitados,nodofinalp)
     Graf.dibujar_grafico()
 
 Aestrella()
