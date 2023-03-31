@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from Grafico import Grafico
+from Grafico1 import Grafico
 
 # Funcion que devuelve la distancia entre dos puntos para ser utilizada como heuristica
 def heuristica (x,y,j,k):
