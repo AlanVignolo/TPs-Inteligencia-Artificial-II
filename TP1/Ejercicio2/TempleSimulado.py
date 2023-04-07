@@ -60,7 +60,7 @@ class Orden ():
         nodos_visitados = set()
         nodos_visitados.add(self.lista[0])
 
-        T = 100
+        T = 10
         while T > 0.01:
 
             vecino = self.VariarValores()

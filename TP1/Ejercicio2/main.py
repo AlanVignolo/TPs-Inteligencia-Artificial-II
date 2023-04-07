@@ -11,12 +11,7 @@ def main():
     Orden1 = Orden(filas,columnas,inicio,fin,estantes)
     Templef = Orden1.TempleSimulado()
     tamañof = Orden1.Tamaño(Templef)
-    for i in range(2):
-        Temple = Orden1.TempleSimulado()
-        tamaño = Orden1.Tamaño(Temple)
-        if tamaño < tamañof:
-            Templef = Temple
-            tamañof = tamaño
+
     print (Templef)
     print (tamañof)
     Orden1.Graficarresultado(Templef)
