@@ -54,15 +54,16 @@ class Aestrella():
 
             if nodoactual == nodofinalp:
                 break
+
         listafinal=[]
         while True:
             for i in range(len(nodosvisitados)-1):
 
-                if nodosvisitados[-i-1][3] == (nodosvisitados[-i-2][0],nodosvisitados[-i-2][1]):
-                    listafinal.insert(0,(nodosvisitados[-i-1][0],nodosvisitados[-i-1][1]))
-                else:
+                while nodosvisitados[-i-1][3] != (nodosvisitados[-i-2][0],nodosvisitados[-i-2][1]):
                     nodosvisitados.pop(-i-2)
-                    break
+                
+                listafinal.insert(0,(nodosvisitados[-i-1][0],nodosvisitados[-i-1][1]))
+                
                 if i ==len(nodosvisitados)-2:
                     listafinal.insert(0,(nodosvisitados[0][0],nodosvisitados[0][1]))
                     return len(listafinal),listafinal,nodofinalp
@@ -70,6 +71,7 @@ class Aestrella():
     def dibujar(self,nodosvisitados,nodofinalp):    
         Grafico1=Grafico(self.Cantfilas*6,self.Cantcolumnas*4,self.Obstaculos)
         Grafico1.dibujar_grafico(nodosvisitados,nodofinalp)
+
 
     def GraficarCamino (self,lista,lista2=0):
 
@@ -84,6 +86,7 @@ class Aestrella():
 
         for x in lista:
             finales.append(self.Obstaculos[x-1])
+
         if lista2==0:
             Grafico2.dibujar_grafico(nodosvisitados,finales)
         else:
@@ -91,7 +94,8 @@ class Aestrella():
             for sublist in  nodosvisitados:
                 total_elements += len(sublist)
             return total_elements
-        # Funcion que devuelve la distancia entre dos puntos para ser utilizada como heuristica
+        
+
     def heuristica (self,x,y,j,k):
         return (abs(x-j)**2+abs(y-k)**2)**0.5 
 

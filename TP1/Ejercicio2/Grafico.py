@@ -10,6 +10,8 @@ class Grafico:
         self.camino = camino
         self.final = final
 
+        print(self.camino)
+
         matriz = [[0 for j in range(self.columnas)] for i in range(self.filas)]
 
         # Pintar obstáculos
