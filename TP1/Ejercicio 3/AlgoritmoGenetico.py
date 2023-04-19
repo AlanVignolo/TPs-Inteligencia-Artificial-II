@@ -34,3 +34,113 @@ if __name__ == "__main__":
     end_time = time.time()
     total_time = end_time - start_time
     print("Tiempo total de ejecución:", total_time, "segundos")
+
+
+
+
+class Genetico:
+    # Constructor
+    def __init__(self, matriz):
+        self.combinacion = comb.Combinacion(matriz)
+        self.orden_original = [1,2,25,26,3,4,27,28,5,6,29,30,7,8,31,32,
+                              9,10,33,34,11,12,35,36,13,14,37,38,15,16,39,40,
+                              17,18,41,42,19,20,43,44,21,22,45,46,23,24,47,48]
+        self.objetivos = [1, 48, 8, 40, 20] # Esto es el dato del problema
+        self.estantes={1:12,2:15,3:22,4:25,5:32,6:35,7:42,8:45,
+                        9:72,10:75,11:82,12:85,13:92,14:95,15:102,16:105,
+                        17:132,18:135,19:142,20:145,21:152,22:155,23:162,24:165,
+                        25:16,26:19,27:26,28:29,29:36,30:39,31:46,32:49,
+                        33:76,34:79,35:86,36:89,37:96,38:99,39:106,40:109,
+                        41:136,42:139,43:146,44:149,45:156,46:159,47:166,48:169}
+        self.poblacion = np.zeros((20, 48))
+
+    # Funcion que inicializa la poblacion aleatoria
+    def PoblacionAleatoria(self):
+        for i in range(0 , len(self.poblacion)):
+            for j in range(0, len(self.poblacion[i])):
+                while True:
+                    n = random.randint(1, len(self.poblacion[0]))
+                    if n not in self.poblacion[i]:
+                        self.poblacion[i,j] = n
+                        break
+       
+    
+    # Funcion que calcula el fitness de cada individuo
+    def fitness(self):
+        costo_total = 0
+        lista = [] 
+        lista_costos = []
+        probabilidad = np.zeros(20)
+        lista_lista = []
+        lista_nodos = []
+        print("flag 1")
+        # En vez de cambiar las posiciones de la matriz hago una conversion de las nuevas a la original
+        for i in range(0, len(self.poblacion)):
+            # Este diccionario me ayuda a visualizar pero no tiene utilidad en el algoritmo
+            # diccionario = {'p_original': [], 'p_nueva': [], 'objetivo': []} # Diccionario de largo 48
+            for j in range(0, len(self.poblacion[i])):
+                # diccionario['p_original'].append(self.orden_original[j])
+                # diccionario['p_nueva'].append(self.poblacion[i,j])
+                # diccionario['objetivo'].append(0)
+                if self.poblacion[i,j] in self.objetivos:
+                    # diccionario['objetivo'][j] = 1
+                    lista.append(self.orden_original[j])    # Esta sera la lista transformada
+            # Con los nodos definido lo mando al temple simulado
+            print("flag 1.5")
+
+            if len(lista) == 5:
+                orden_nodos, camino, posiciones_visitadas, costo = self.combinacion.combinacion_optima(lista)
+            else:
+                print(self.poblacion[i])
+                print("???????????????????????????")
+                # cerrar el programa
+                break
+            print("flag 1.75")
+
+            lista.clear()
+            costo_total += costo
+            lista_costos.append(costo)
+            # lista_lista.append(lista)
+            # lista_nodos.append(orden_nodos)
+        print ("flag 2")
+        for i in range(0, len(lista_costos)):
+            probabilidad[i] = 1 - (lista_costos[i]/costo_total)
+
+        lista_costos.clear()
+
+        return probabilidad
+
+    # Mutacion
+    def mutacion(self, seleccionados, probabilidad):
+        nueva_generacion = np.zeros((20, 48))
+        k2 = 999
+        k1 = 0
+        print("flag 3")
+        # Reordenamiento para la nueva generacion
+        for i in range(0, len(nueva_generacion)):
+            while True:
+                k1 = random.randint(0, len(seleccionados)-1)
+                #if probabilidad[k1] > random.random() and k1 != k2:
+                if k1 != k2:
+                    # Probabilidad de que sea aceptado y que no sea igual al anterior
+                    # De esta forma la siguiente generacion no se repetira
+                    nueva_generacion[i] = seleccionados[k1]
+                    k2 = k1
+                    break
+        print("flag 4")
+        # Cross over
+        for j in range(0, 20, 2):   # 0, 2, 4, 6, 8, 10, 12, 14, 16, 18  
+            # Posicion de corte
+            while True:
+                n = random.randint(0, len(seleccionados[0])) 
+                if n != 0 and n != len(seleccionados[0]):   # Para que no se corte en la primera o ultima posicion
+                    aux1 = nueva_generacion[j, n:]  # Guarda la parte de la derecha del corte]
+                    aux2 = nueva_generacion[j+1, n:]    # Guarda la parte de la derecha del corte
+                    aux3 = nueva_generacion[j, :n]  # Guarda la parte de la izquierda del corte
+                    aux4 = nueva_generacion[j+1, :n]    # Guarda la parte de la izquierda del corte
+                    nueva_generacion[j] = np.concatenate((aux3, aux2), axis=None) # Concatena la parte izquierda con la derecha
+                    nueva_generacion[j+1] = np.concatenate((aux4, aux1), axis=None)   # Concatena la parte izquierda con la derecha                 
+                    
+                    break
+        print("flag 5")
+        self.poblacion = nueva_generacion
