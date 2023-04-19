@@ -3,7 +3,7 @@ from Aestrella import Aestrella
 import math
 import copy
 
-class Orden ():
+class Temple ():
     def __init__ (self,filas,columnas,inicio,fin,estantes):
         self.filas = filas
         self.columnas = columnas
@@ -60,7 +60,7 @@ class Orden ():
         nodos_visitados = set()
         nodos_visitados.add(self.lista[0])
 
-        T = 100
+        T = 50
         while T > 0.01:
             vecino = self.VariarValores()
             vecinodist = self.distanciaActual(self.suma,vecino[1]) 
