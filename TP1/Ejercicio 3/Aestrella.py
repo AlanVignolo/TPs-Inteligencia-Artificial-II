@@ -47,10 +47,15 @@ class Aestrella():
                     if ((inuevo, jnuevo) not in [(sublst[0], sublst[1]) for sublst in nodosabiertos]) and ((inuevo, jnuevo) not in self.Obstaculos) and ((inuevo, jnuevo) not in [(sublst[0], sublst[1]) for sublst in nodosvisitados]) and (inuevo >= 0) and (jnuevo >= 0) and (inuevo <= self.Cantfilas * 6) and (jnuevo <= self.Cantcolumnas * 4) and abs(i) != abs(j):
                         f = self.heuristica(nodofinalp[0], nodofinalp[1], inuevo, jnuevo) + r
                         nodosabiertos.append((inuevo, jnuevo,f , r, (iactual, jactual)))
-            nodosabiertos = sorted(nodosabiertos, key=lambda x: x[2])
-            nodoactual[0],nodoactual[1], *_ = nodosabiertos[0]
-            nodosvisitados.append(((nodosabiertos[0][0]),(nodosabiertos[0][1]),(nodosabiertos[0][3]),(nodosabiertos[0][4])))
-            nodosabiertos.pop(0)
+            try:
+                nodosabiertos = sorted(nodosabiertos, key=lambda x: x[2])
+                nodoactual[0],nodoactual[1], *_ = nodosabiertos[0]
+                nodosvisitados.append(((nodosabiertos[0][0]),(nodosabiertos[0][1]),(nodosabiertos[0][3]),(nodosabiertos[0][4])))
+                nodosabiertos.pop(0)
+            except Exception:
+                print("Error: La entrada no es un número entero.")
+                print("Tipo de error:", type(Exception).__name__)
+                raise
 
             if nodoactual == nodofinalp:
                 break

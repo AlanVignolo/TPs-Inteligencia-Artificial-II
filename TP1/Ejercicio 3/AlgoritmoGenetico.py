@@ -20,20 +20,32 @@ class Genetico:
     
     # Funcion que selecciona los individuos para la siguiente generacion
     def seleccion(self, ordenes):
+        auxiliar = []
+        for i in range(0, len(ordenes)):
+            aux = self.poblacion[i].tolist()
+            for j in range(0, len(ordenes[i])):
+                auxiliar.append(aux.index(ordenes[i][j])+1)
+
+            ordenes[i]=auxiliar.copy()
+            auxiliar.clear()
+
         # Para cada individuo se calcula el costo total que tendran 10 ordenes
         costos = []
         for i in range(0, len(self.poblacion)):
+            print("\nIndividuo: ", i)
             costo_total = 0
-            for i in range(0, len(ordenes)):
-                Orden = Temple(self.filas, self.columnas, self.inicio, self.fin, ordenes[i])
+            for j in range(0, len(ordenes)):
+                print(ordenes[j])
+                Orden = Temple(self.filas, self.columnas, self.inicio, self.fin, ordenes[j])
                 Templef = Orden.TempleSimulado()
                 costo_total += Orden.Tamaño(Templef)
                 costos.append(costo_total) 
-        
+
         # Seleccion de los mejores individuos
         aux1 = sorted(costos, reverse=False) # Tiene que ser al revez
         for i in range(0, len(self.seleccionados)):
-            pos = np.where(costos == aux1[i])[0][0]
+            pos = costos.index(aux1[i])
+            # pos = np.where(costos == aux1[i])[0][0]
             self.seleccionados[i] = self.poblacion[pos]
     
     # Funcion que realiza el coss-over
@@ -92,7 +104,7 @@ class Genetico:
                 if cut1 == cut2:
                     break
             hijo1[cut1], hijo1[cut2] = hijo1[cut2], hijo1[cut1]
-            
+
             nueva_generacion[i] = hijo1
             nueva_generacion[i+1] = hijo2
 
@@ -103,7 +115,7 @@ def main():
     order_1 = [22, 24, 25, 27, 29, 31, 33, 46, 47, 54, 55, 58, 62, 63, 65, 66, 70, 72, 73, 74, 80, 87, 95, 97, 98]
     order_2 = [12, 20, 24, 25, 27, 29, 33, 35, 37, 38, 42, 54, 55, 60, 70, 76, 77, 78, 97, 99]
     order_3 = [21, 23, 24, 25, 39, 40, 44, 50, 51, 59, 63, 64, 67, 69, 74, 75, 80, 81, 85, 90, 93, 95, 96, 98]
-    order_4 = [0, 8, 17, 20, 25, 30, 31, 36, 37, 41, 45, 50, 51, 52, 54, 56, 60, 64, 65, 73, 80, 87, 90, 92, 93, 96, 97, 98]
+    order_4 = [1, 8, 17, 20, 25, 30, 31, 36, 37, 41, 45, 50, 51, 52, 54, 56, 60, 64, 65, 73, 80, 87, 90, 92, 93, 96, 97, 98]
     order_5 = [20, 21, 25, 29, 36, 50, 60, 65, 72, 73, 74, 76, 79, 84, 87, 90, 92, 93, 95, 99]
     order_6 = [3, 20, 30, 32, 33, 38, 47, 48, 57, 58, 61, 63, 66, 72, 76, 79, 80, 86, 89, 94, 95]
     order_7 = [8, 21, 39, 42, 48, 50, 52, 60, 63, 69, 72, 76, 77, 79, 81, 82, 83, 85, 88, 91, 94, 97, 98]
