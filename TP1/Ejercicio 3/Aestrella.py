@@ -53,7 +53,7 @@ class Aestrella():
                 nodosvisitados.append(((nodosabiertos[0][0]),(nodosabiertos[0][1]),(nodosabiertos[0][3]),(nodosabiertos[0][4])))
                 nodosabiertos.pop(0)
             except Exception:
-                print("Error: La entrada no es un número entero.")
+                print(nodoinicial ,nodofinal)
                 print("Tipo de error:", type(Exception).__name__)
                 raise
 
