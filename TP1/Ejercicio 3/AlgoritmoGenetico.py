@@ -11,13 +11,13 @@ class Genetico:
         self.columnas = 5
         self.inicio = 1
         self.fin = 1
-        self.seleccionados = np.zeros((6, 120))
+        self.seleccionados = np.zeros((4, 120))
 
     # Funcion que inicializa la poblacion aleatoria
     def PoblacionAleatoria(self):
         for i in range(0 , len(self.poblacion)):
             self.poblacion[i] = random.sample(range(1, 121), 120)
-    
+
     # Funcion que selecciona los individuos para la siguiente generacion
     def seleccion(self, ordenes):
         auxiliar = []
@@ -32,21 +32,20 @@ class Genetico:
         # Para cada individuo se calcula el costo total que tendran 10 ordenes
         costos = []
         for i in range(0, len(self.poblacion)):
-            print("\nIndividuo: ", i)
             costo_total = 0
             for j in range(0, len(ordenes)):
-                print(ordenes[j])
                 Orden = Temple(self.filas, self.columnas, self.inicio, self.fin, ordenes[j])
                 Templef = Orden.TempleSimulado()
                 costo_total += Orden.Tamaño(Templef)
-                costos.append(costo_total) 
+                # costo_total += random.randint(0, 100)
+            costos.append(costo_total) 
 
         # Seleccion de los mejores individuos
         aux1 = sorted(costos, reverse=False) # Tiene que ser al revez
         for i in range(0, len(self.seleccionados)):
             pos = costos.index(aux1[i])
-            # pos = np.where(costos == aux1[i])[0][0]
             self.seleccionados[i] = self.poblacion[pos]
+        return aux1
     
     # Funcion que realiza el coss-over
     def cruce(self):
@@ -64,49 +63,72 @@ class Genetico:
                     break
 
         # Cross over
-        for i in range(0, 12, 2):
-            cut1 = random.randint(0, len(nueva_generacion[i]) - 1)
-            cut2 = random.randint(0, len(nueva_generacion[i+1]) - 1)
+        for k in range(0, 12, 2):
+            cut1 = random.randint(0, len(nueva_generacion[k]) - 1)
+            cut2 = random.randint(0, len(nueva_generacion[k+1]) - 1)
 
             if cut1 > cut2:
                 cut1, cut2 = cut2, cut1
 
             # Inicializar el hijo con la sección del padre 1
-            hijo1 = [None]*len(nueva_generacion[i])
-            hijo2 = [None]*len(nueva_generacion[i+1])
-            hijo1[cut1:cut2+1] = nueva_generacion[i][cut1:cut2+1]
-            hijo2[cut1:cut2+1] = nueva_generacion[i+1][cut1:cut2+1]
+            hijo1 = [None]*len(nueva_generacion[k])
+            hijo2 = [None]*len(nueva_generacion[k+1])
+            hijo1[cut1:cut2+1] = nueva_generacion[k+1][cut1:cut2+1]
+            hijo2[cut1:cut2+1] = nueva_generacion[k][cut1:cut2+1]
 
-            # Copiar los genes del padre 2 que no están en el hijo
-            for j in range(len(nueva_generacion[i])):
-                if nueva_generacion[i][j] not in hijo1:
-                    idx = i
-                    while hijo1[idx] is not None:
-                        idx = nueva_generacion[i+1].index(nueva_generacion[i][idx])
-                    hijo1[idx] = nueva_generacion[i+1][j]
-                if nueva_generacion[i][j] not in hijo2:
-                    idx = i
-                    while hijo2[idx] is not None:
-                        idx = nueva_generacion[i].index(nueva_generacion[i+1][idx])
-                    hijo2[idx] = nueva_generacion[i][j]
+            # Buscar el valor correspondiente en el segundo padre a partir del punto de cruce 2
+            idx_2 = nueva_generacion[k+1].tolist().index(nueva_generacion[k][cut2])
+            idx_1 = nueva_generacion[k].tolist().index(nueva_generacion[k+1][cut2])
 
-            # Completar los genes restantes del hijo
-            for j in range(len(hijo1)):
-                if hijo1[i] is None:
-                    hijo1[i] = nueva_generacion[i+1][nueva_generacion[i].index(nueva_generacion[i][j])]
-                if hijo2[i] is None:
-                    hijo2[i] = nueva_generacion[i][nueva_generacion[i+1].index(nueva_generacion[i][j])]
-            
-            # Mutacion
+            # Copiar los valores restantes en orden sin duplicados
+            j = cut2 + 1
+            for i in range(idx_2, len(nueva_generacion[k+1])):
+                if j == len(hijo2):
+                    j = 0
+                if nueva_generacion[k+1][i] not in hijo2:
+                    hijo2[j] = nueva_generacion[k+1][i]
+                    j += 1
+                    if j == len(hijo2):
+                        j = 0
+            l = cut2 + 1
+            for i in range(idx_1, len(nueva_generacion[k])):
+                if l == len(hijo1):
+                    l = 0
+                if nueva_generacion[k][i] not in hijo1:
+                    hijo1[l] = nueva_generacion[k][i]
+                    l += 1
+                    if l == len(hijo1):
+                        l = 0
+
+            for i in range(0, idx_2):
+                if j == len(hijo2):
+                    j = 0
+                if nueva_generacion[k+1][i] not in hijo2:
+                    hijo2[j] = nueva_generacion[k+1][i]
+                    j += 1
+                    if j == len(hijo2):
+                        j = 0
+
+            for i in range(0, idx_1):
+                if l == len(hijo1):
+                    l = 0
+                if nueva_generacion[k][i] not in hijo1:
+                    hijo1[l] = nueva_generacion[k][i]
+                    l += 1
+                    if l == len(hijo1):
+                        l = 0
+
             while True:
-                cut1 = random.randint(0, len(nueva_generacion[i]) - 1)
-                cut2 = random.randint(0, len(nueva_generacion[i+1]) - 1)
-                if cut1 == cut2:
+                cut1 = random.randint(0, len(nueva_generacion[k]) - 1)
+                cut2 = random.randint(0, len(nueva_generacion[k+1]) - 1)
+                if cut1 != cut2:
                     break
             hijo1[cut1], hijo1[cut2] = hijo1[cut2], hijo1[cut1]
 
-            nueva_generacion[i] = hijo1
-            nueva_generacion[i+1] = hijo2
+            nueva_generacion[k] = hijo1
+            nueva_generacion[k+1] = hijo2
+
+        self.poblacion = nueva_generacion.copy()
 
 
 start_time = time.time()
@@ -132,8 +154,15 @@ def main():
 
     while 10>i:
         i += 1
-        g.seleccion(ordenes)
+        print ("Generacion: ", i)
+        costo = g.seleccion(ordenes)
+        print("Mejor solucion: ", g.poblacion[0])
+        print("Costo: ", costo[0])
         g.cruce()
+        
+    costo = g.seleccion(ordenes)
+    print("Mejor solucion: ", g.poblacion[0])
+    print("Costo: ", costo[0])
 
 
 if __name__ == "__main__":

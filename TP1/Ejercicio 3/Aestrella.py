@@ -10,9 +10,9 @@ class Aestrella():
         self.Cantfilas = filas
         self.Cantcolumnas = columnas
         self.Obstaculos= self.CalcObstaculos()
-
     def calcularcamino(self,inicio,final):
-
+        pruebaacutalinicio=inicio
+        pruebaacutalfinal=final
         nodoinicial = list(self.Obstaculos[inicio-1])
         nodofinal = list(self.Obstaculos[final-1])
 
@@ -34,6 +34,8 @@ class Aestrella():
         nodoactual = nodoinicial
         nodosvisitados.append(((nodoinicial[0]),(nodoinicial[1]),r))
 
+        if nodoactual == nodofinalp:
+            return 0, [nodofinalp], nodofinalp
         
         while True:
             r+=1
@@ -53,6 +55,10 @@ class Aestrella():
                 nodosvisitados.append(((nodosabiertos[0][0]),(nodosabiertos[0][1]),(nodosabiertos[0][3]),(nodosabiertos[0][4])))
                 nodosabiertos.pop(0)
             except Exception:
+                print("No se pudo encontrar un camino entre los nodos",pruebaacutalinicio,"y",pruebaacutalfinal)
+                print("Los obstaculos son:")
+                print(self.Obstaculos)
+                print("Los nodos inicial y final son:")
                 print(nodoinicial ,nodofinal)
                 print("Tipo de error:", type(Exception).__name__)
                 raise
