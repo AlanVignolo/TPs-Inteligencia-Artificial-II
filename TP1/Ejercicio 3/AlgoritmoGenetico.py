@@ -1,4 +1,5 @@
 from TempleSimulado import Temple
+import multiprocessing as mp
 import time
 import numpy as np
 import random
@@ -11,7 +12,7 @@ class Genetico:
         self.columnas = 5
         self.inicio = 1
         self.fin = 1
-        self.seleccionados = np.zeros((4, 120))
+        self.seleccionados = np.zeros((2, 120))
 
     # Funcion que inicializa la poblacion aleatoria
     def PoblacionAleatoria(self):
@@ -19,7 +20,7 @@ class Genetico:
             self.poblacion[i] = random.sample(range(1, 121), 120)
 
     # Funcion que selecciona los individuos para la siguiente generacion
-    def seleccion(self, ordenes):
+    def transformacion(self, ordenes):
         auxiliar = []
         for i in range(0, len(ordenes)):
             aux = self.poblacion[i].tolist()
@@ -28,18 +29,24 @@ class Genetico:
 
             ordenes[i]=auxiliar.copy()
             auxiliar.clear()
+        return ordenes
 
+
+    def calculo(self, ordenes, poblacion, costo_i):
         # Para cada individuo se calcula el costo total que tendran 10 ordenes
         costos = []
-        for i in range(0, len(self.poblacion)):
+        for i in range(0, len(poblacion)):
             costo_total = 0
             for j in range(0, len(ordenes)):
                 Orden = Temple(self.filas, self.columnas, self.inicio, self.fin, ordenes[j])
                 Templef = Orden.TempleSimulado()
                 costo_total += Orden.Tamaño(Templef)
                 # costo_total += random.randint(0, 100)
-            costos.append(costo_total) 
+            costos.append(costo_total)
 
+        costo_i.put(costos)
+        
+    def seleccion(self, costos):    
         # Seleccion de los mejores individuos
         aux1 = sorted(costos, reverse=False) # Tiene que ser al revez
         for i in range(0, len(self.seleccionados)):
@@ -49,6 +56,9 @@ class Genetico:
     
     # Funcion que realiza el coss-over
     def cruce(self):
+        PADRE1 = self.seleccionados[0]
+        PADRE2 = self.seleccionados[1] 
+
         nueva_generacion = np.zeros((12, 120))
         k2 = 999
         k1 = 0
@@ -117,7 +127,7 @@ class Genetico:
                     l += 1
                     if l == len(hijo1):
                         l = 0
-
+            # MuTACION
             while True:
                 cut1 = random.randint(0, len(nueva_generacion[k]) - 1)
                 cut2 = random.randint(0, len(nueva_generacion[k+1]) - 1)
@@ -127,12 +137,13 @@ class Genetico:
 
             nueva_generacion[k] = hijo1
             nueva_generacion[k+1] = hijo2
-
+        
+        nueva_generacion[0]= PADRE1.copy()
+        nueva_generacion[1]= PADRE2.copy()
         self.poblacion = nueva_generacion.copy()
 
-
-start_time = time.time()
-def main():
+if __name__ == "__main__":
+    start_time = time.time()
 
     order_1 = [22, 24, 25, 27, 29, 31, 33, 46, 47, 54, 55, 58, 62, 63, 65, 66, 70, 72, 73, 74, 80, 87, 95, 97, 98]
     order_2 = [12, 20, 24, 25, 27, 29, 33, 35, 37, 38, 42, 54, 55, 60, 70, 76, 77, 78, 97, 99]
@@ -146,27 +157,57 @@ def main():
     order_10 = [20, 25, 33, 35, 41, 43, 47, 49, 52, 53, 60, 64, 76, 79, 84, 90, 94, 95, 97, 99]
     ordenes = [order_1, order_2, order_3, order_4, order_5, order_6, order_7, order_8, order_9, order_10]
 
-    # Necesito una funcion que me transforme las ordenes a las posiciones de la matriz del temple
-
     i = 0
     g = Genetico()
     g.PoblacionAleatoria()
 
-    while 10>i:
+    costo_a = mp.Queue()
+    costo_b = mp.Queue()
+    costo_c = mp.Queue()
+    costo_d = mp.Queue()
+
+    while 50>i:
         i += 1
-        print ("Generacion: ", i)
-        costo = g.seleccion(ordenes)
-        print("Mejor solucion: ", g.poblacion[0])
-        print("Costo: ", costo[0])
+        ordenes_tr = g.transformacion(ordenes)
+        pob1 = g.poblacion[0:2].copy()
+        pob2 = g.poblacion[3:5].copy()
+        pob3 = g.poblacion[6:8].copy()
+        pob4 = g.poblacion[9:11].copy()
+
+        p1 = mp.Process(target=g.calculo, args=(ordenes_tr, pob1, costo_a))
+        p2 = mp.Process(target=g.calculo, args=(ordenes_tr, pob2, costo_b))
+        p3 = mp.Process(target=g.calculo, args=(ordenes_tr, pob3, costo_c))
+        p4 = mp.Process(target=g.calculo, args=(ordenes_tr, pob4, costo_d))
+        
+        p1.start()
+        p2.start()
+        p3.start()
+        p4.start()
+
+        costo_t = []
+        costo_t = costo_a.get() + costo_b.get() + costo_c.get() + costo_d.get()
+        costo = g.seleccion(costo_t)
+
+        p1.join()
+        p2.join()
+        p3.join()
+        p4.join()
+
+        p1.close()
+        p2.close()
+        p3.close()
+        p4.close()
+        
+        print(f"Generacion: {i-1} \t\t Costo: {costo[0]}")
         g.cruce()
         
-    costo = g.seleccion(ordenes)
-    print("Mejor solucion: ", g.poblacion[0])
+
+    g.calculo(ordenes_tr, g.poblacion, costo_a)
+    costo = g.seleccion(costo_a.get())
+    print("Generacion: ", i)
+    print("Mejor solucion: ", g.seleccionados[0])
     print("Costo: ", costo[0])
-
-
-if __name__ == "__main__":
-    main()
+    
     end_time = time.time()
-    total_time = end_time - start_time
-    print("Tiempo total de ejecución:", total_time, "segundos")
+    
+    print("Tiempo total de ejecución: ", end_time - start_time)

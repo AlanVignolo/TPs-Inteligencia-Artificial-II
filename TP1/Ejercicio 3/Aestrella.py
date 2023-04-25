@@ -10,9 +10,9 @@ class Aestrella():
         self.Cantfilas = filas
         self.Cantcolumnas = columnas
         self.Obstaculos= self.CalcObstaculos()
+
     def calcularcamino(self,inicio,final):
-        pruebaacutalinicio=inicio
-        pruebaacutalfinal=final
+
         nodoinicial = list(self.Obstaculos[inicio-1])
         nodofinal = list(self.Obstaculos[final-1])
 
@@ -35,9 +35,13 @@ class Aestrella():
         nodosvisitados.append(((nodoinicial[0]),(nodoinicial[1]),r))
 
         if nodoactual == nodofinalp:
-            return 0, [nodofinalp], nodofinalp
+            return 0, [nodoinicial, nodofinalp], nodofinalp
         
         while True:
+
+            if nodoactual == nodofinalp:
+                break
+
             r+=1
             iactual = nodoactual[0]
             jactual = nodoactual[1]
@@ -49,27 +53,20 @@ class Aestrella():
                     if ((inuevo, jnuevo) not in [(sublst[0], sublst[1]) for sublst in nodosabiertos]) and ((inuevo, jnuevo) not in self.Obstaculos) and ((inuevo, jnuevo) not in [(sublst[0], sublst[1]) for sublst in nodosvisitados]) and (inuevo >= 0) and (jnuevo >= 0) and (inuevo <= self.Cantfilas * 6) and (jnuevo <= self.Cantcolumnas * 4) and abs(i) != abs(j):
                         f = self.heuristica(nodofinalp[0], nodofinalp[1], inuevo, jnuevo) + r
                         nodosabiertos.append((inuevo, jnuevo,f , r, (iactual, jactual)))
-            try:
-                nodosabiertos = sorted(nodosabiertos, key=lambda x: x[2])
-                nodoactual[0],nodoactual[1], *_ = nodosabiertos[0]
-                nodosvisitados.append(((nodosabiertos[0][0]),(nodosabiertos[0][1]),(nodosabiertos[0][3]),(nodosabiertos[0][4])))
-                nodosabiertos.pop(0)
-            except Exception:
-                print("No se pudo encontrar un camino entre los nodos",pruebaacutalinicio,"y",pruebaacutalfinal)
-                print("Los obstaculos son:")
-                print(self.Obstaculos)
-                print("Los nodos inicial y final son:")
-                print(nodoinicial ,nodofinal)
-                print("Tipo de error:", type(Exception).__name__)
-                raise
-
-            if nodoactual == nodofinalp:
-                break
+            nodosabiertos = sorted(nodosabiertos, key=lambda x: x[2])
+            nodoactual[0],nodoactual[1], *_ = nodosabiertos[0]
+            nodosvisitados.append(((nodosabiertos[0][0]),(nodosabiertos[0][1]),(nodosabiertos[0][3]),(nodosabiertos[0][4])))
+            nodosabiertos.pop(0)            
 
         listafinal=[]
         while True:
-            for i in range(len(nodosvisitados)-1):
 
+            for i in range(len(nodosvisitados)-1):
+                if len(nodosvisitados)==2:
+                    listafinal.insert(0,(nodosvisitados[-1][0],nodosvisitados[-1][1]))
+                    listafinal.insert(0,(nodosvisitados[0][0],nodosvisitados[0][1]))
+                    return len(listafinal),listafinal,nodofinalp
+                
                 while nodosvisitados[-i-1][3] != (nodosvisitados[-i-2][0],nodosvisitados[-i-2][1]):
                     nodosvisitados.pop(-i-2)
                 
@@ -134,5 +131,4 @@ class Aestrella():
         for j in veccolumnas:
             for i in vecfilas:
                 Obstaculos.append((i-1,j-1))
-
         return Obstaculos

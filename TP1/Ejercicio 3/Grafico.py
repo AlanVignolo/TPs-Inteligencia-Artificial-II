@@ -10,8 +10,6 @@ class Grafico:
         self.camino = camino
         self.final = final
 
-        print(self.camino)
-
         matriz = [[0 for j in range(self.columnas)] for i in range(self.filas)]
 
         # Pintar obstáculos
@@ -78,6 +76,20 @@ class Grafico:
                     color = "gold"
                 elif matriz[i][j] == 15:
                     color = "silver"
+                elif matriz[i][j] == 16:
+                    color = "dark green"
+                elif matriz[i][j] == 17:
+                    color = "dark blue"
+                elif matriz[i][j] == 18:
+                    color = "dark red"
+                elif matriz[i][j] == 19:
+                    color = "dark grey"
+                elif matriz[i][j] == 20:
+                    color = "dark cyan"
+                elif matriz[i][j] == 21:
+                    color = "dark magenta"
+                elif matriz[i][j] == 22:
+                    color = "dark yellow"
                 lienzo.create_rectangle(x1, y1, x2, y2, fill=color)
 
         # Ajustar tamaño del lienzo
