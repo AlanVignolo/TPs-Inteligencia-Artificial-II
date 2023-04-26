@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from Grafico import Grafico
-import copy
+# import copy
 from math import dist
 
 class Aestrella():
