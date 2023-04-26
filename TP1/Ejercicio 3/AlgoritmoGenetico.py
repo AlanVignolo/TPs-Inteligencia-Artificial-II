@@ -7,7 +7,7 @@ import random
 class Genetico:
     # Constructor
     def __init__(self):
-        self.poblacion = np.zeros((12, 120))
+        self.poblacion = np.zeros((16, 120))
         self.filas = 3
         self.columnas = 5
         self.inicio = 1
@@ -52,12 +52,7 @@ class Genetico:
     
     # Funcion que realiza el coss-over
     def cruce(self):
-        PADRE1 = self.seleccionados[0]
-        PADRE2 = self.seleccionados[1]
-        PADRE3 = self.seleccionados[2]
-        PADRE4 = self.seleccionados[3] 
-
-        nueva_generacion = np.zeros((12, 120))
+        nueva_generacion = np.zeros((16, 120))
         k2 = 999
         k1 = 0
         # Reordenamiento para la nueva generacion
@@ -136,17 +131,11 @@ class Genetico:
             nueva_generacion[k] = hijo1
             nueva_generacion[k+1] = hijo2
 
-        # print(self.poblacion)
-        
-        nueva_generacion[0] = PADRE1.copy()
-        nueva_generacion[1] = PADRE2.copy()
-        nueva_generacion[2] = PADRE3.copy()
-        nueva_generacion[3] = PADRE4.copy()
+        nueva_generacion[0] = self.seleccionados[0]
+        nueva_generacion[1] = self.seleccionados[1]
+        nueva_generacion[2] = self.seleccionados[2]
+        nueva_generacion[3] = self.seleccionados[3]
         self.poblacion = nueva_generacion.copy()
-
-        # print (self.seleccionados)
-
-        # print(self.poblacion)
 
 if __name__ == "__main__":
     start_time = time.time()
@@ -163,7 +152,7 @@ if __name__ == "__main__":
     order_10 = [20, 25, 33, 35, 41, 43, 47, 49, 52, 53, 60, 64, 76, 79, 84, 90, 94, 95, 97, 99]
     ordenes = [order_1, order_2, order_3, order_4, order_5, order_6, order_7, order_8, order_9, order_10]
 
-    i = 0
+    k = 0
     g = Genetico()
     g.PoblacionAleatoria()
 
@@ -173,11 +162,35 @@ if __name__ == "__main__":
     costo_d = mp.Queue()
     costo_e = mp.Queue()
     costo_f = mp.Queue()
+    costo_g = mp.Queue()
+    costo_h = mp.Queue()
 
-    while 100>i:
-        i += 1
+    poblaciones = [g.poblacion[i:i+2].copy() for i in range(0, 16, 2)]
 
-        poblaciones = [g.poblacion[i:i+2].copy() for i in range(0, 12, 2)]
+    procesos = []
+    for poblacion, costo in zip(poblaciones, [costo_a, costo_b, costo_c, costo_d, costo_e, costo_f, costo_g, costo_h]):
+        procesos.append(mp.Process(target=g.calculo, args=(ordenes, poblacion, costo)))
+
+    for proceso in procesos:
+        proceso.start()
+
+    for proceso in procesos:
+        proceso.join()
+
+    costo_t = []
+    costo_t = costo_a.get() + costo_b.get() + costo_c.get() + costo_d.get() + costo_e.get() + costo_f.get() + costo_g.get() + costo_h.get()
+    costo = g.seleccion(costo_t)  # Devuelve la lista de costos ordenada y carga como parametro los mejores 4 individuos
+
+    for proceso in procesos:
+        proceso.close()
+    
+    print(f"Poblacion inicial:\t\tCosto: {costo[0]}")
+    g.cruce()  
+
+    while 10>k:
+        k += 1
+
+        poblaciones = [g.poblacion[i:i+2].copy() for i in range(4, 16, 2)]
 
         procesos = []
         for poblacion, costo in zip(poblaciones, [costo_a, costo_b, costo_c, costo_d, costo_e, costo_f]):
@@ -190,28 +203,26 @@ if __name__ == "__main__":
             proceso.join()
 
         costo_t = []
-        costo_t = costo_a.get() + costo_b.get() + costo_c.get() + costo_d.get() + costo_e.get() + costo_f.get()
-        
-        if g.costo_sel != []:
-            costo_t[0:4] = g.costo_sel
-
+        costo_m = []
+        costo_m = costo_a.get() + costo_b.get() + costo_c.get() + costo_d.get() + costo_e.get() + costo_f.get()
+        costo_t = g.costo_sel + costo_m
+        print(costo_t)
         costo = g.seleccion(costo_t)
 
         for proceso in procesos:
             proceso.close()
         
-        print(f"Generacion: {i-1} \t\t Costo: {costo[0]}")
+        print(f"Generacion: {k}\t\t\tCosto: {costo[0]}")
         g.cruce()       
 
-    g.calculo(ordenes, g.poblacion, costo_a)
-    costo_t.clear()
-    costo_t = costo_a.get()
-    costo_t[:4] = g.costo_sel
-    costo = g.seleccion(costo_t)
-    print("Generacion: ", i)
+    # g.calculo(ordenes, g.poblacion, costo_a)
+    # costo_t.clear()
+    # costo_t = costo_a.get()
+    # costo_t[:4] = g.costo_sel
+    # costo = g.seleccion(costo_t)
+    # print("Generacion: ", k)
     print("Mejor solucion: ", g.seleccionados[0])
-    print("Costo: ", costo[0])
+    # print("Costo: ", costo[0])
     
-    end_time = time.time()
-    
+    end_time = time.time()   
     print("Tiempo total de ejecución: ", end_time - start_time)
