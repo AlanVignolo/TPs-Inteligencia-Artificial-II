@@ -67,7 +67,7 @@ class Temple():
         nodos_visitados = set()
         nodos_visitados.add(self.lista[0])
 
-        T = 50
+        T = 200
 
         while T > 0.1:
 
@@ -77,10 +77,9 @@ class Temple():
             try:
                 aux = (1/(math.exp(abs(delta_distancia)/T)))
             except:
-                print("Temperatura: ", T)
                 aux = 0
 
-            random1 = random.random()
+            random1 = random.betavariate(2,5)
 
             if delta_distancia >= 0 or  aux > random1:
                 self.lista = list(vecino[0])

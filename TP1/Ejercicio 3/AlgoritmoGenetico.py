@@ -12,38 +12,41 @@ class Genetico:
         self.columnas = 5
         self.inicio = 1
         self.fin = 1
-        self.seleccionados = np.zeros((2, 120))
+        self.seleccionados = np.zeros((4, 120))
 
     # Funcion que inicializa la poblacion aleatoria
     def PoblacionAleatoria(self):
         for i in range(0 , len(self.poblacion)):
             self.poblacion[i] = random.sample(range(1, 121), 120)
 
-    # Funcion que selecciona los individuos para la siguiente generacion
-    def transformacion(self, ordenes):
-        auxiliar = []
-        for i in range(0, len(ordenes)):
-            aux = self.poblacion[i].tolist()
-            for j in range(0, len(ordenes[i])):
-                auxiliar.append(aux.index(ordenes[i][j])+1)
+    # def transformacion(self, ordenes):
+    #     auxiliar = []
+    #     for k in range(0, len(ordenes)):
+    #         aux = self.poblacion[k].tolist()
+    #         for l in range(0, len(ordenes[k])):
+    #             auxiliar.append(aux.index(ordenes[k][l])+1)
 
-            ordenes[i]=auxiliar.copy()
-            auxiliar.clear()
-        return ordenes
+    #         ordenes[i]=auxiliar.copy()
+    #         auxiliar.clear()
+    #     return ordenes
 
-
-    def calculo(self, ordenes, poblacion, costo_i):
+    def calculo(self, orden, poblacion, costo_i):
         # Para cada individuo se calcula el costo total que tendran 10 ordenes
         costos = []
         for i in range(0, len(poblacion)):
+            auxiliar = []
             costo_total = 0
-            for j in range(0, len(ordenes)):
-                Orden = Temple(self.filas, self.columnas, self.inicio, self.fin, ordenes[j])
+            for k in range(0, len(orden)):
+                aux = poblacion[i].tolist()
+                for l in range(0, len(orden[k])):
+                    auxiliar.append(aux.index(orden[k][l])+1)
+
+                Orden = Temple(self.filas, self.columnas, self.inicio, self.fin, auxiliar)
                 Templef = Orden.TempleSimulado()
                 costo_total += Orden.Tamaño(Templef)
                 # costo_total += random.randint(0, 100)
+                auxiliar.clear()
             costos.append(costo_total)
-
         costo_i.put(costos)
         
     def seleccion(self, costos):    
@@ -57,7 +60,9 @@ class Genetico:
     # Funcion que realiza el coss-over
     def cruce(self):
         PADRE1 = self.seleccionados[0]
-        PADRE2 = self.seleccionados[1] 
+        PADRE2 = self.seleccionados[1]
+        PADRE3 = self.seleccionados[2]
+        PADRE4 = self.seleccionados[3] 
 
         nueva_generacion = np.zeros((12, 120))
         k2 = 999
@@ -90,7 +95,7 @@ class Genetico:
             idx_2 = nueva_generacion[k+1].tolist().index(nueva_generacion[k][cut2])
             idx_1 = nueva_generacion[k].tolist().index(nueva_generacion[k+1][cut2])
 
-            # Copiar los valores restantes en orden sin duplicados
+            # Cruce de Orden
             j = cut2 + 1
             for i in range(idx_2, len(nueva_generacion[k+1])):
                 if j == len(hijo2):
@@ -137,10 +142,18 @@ class Genetico:
 
             nueva_generacion[k] = hijo1
             nueva_generacion[k+1] = hijo2
+
+        # print(self.poblacion)
         
-        nueva_generacion[0]= PADRE1.copy()
-        nueva_generacion[1]= PADRE2.copy()
+        nueva_generacion[0] = PADRE1.copy()
+        nueva_generacion[1] = PADRE2.copy()
+        nueva_generacion[2] = PADRE3.copy()
+        nueva_generacion[3] = PADRE4.copy()
         self.poblacion = nueva_generacion.copy()
+
+        # print (self.seleccionados)
+
+        # print(self.poblacion)
 
 if __name__ == "__main__":
     start_time = time.time()
@@ -165,44 +178,57 @@ if __name__ == "__main__":
     costo_b = mp.Queue()
     costo_c = mp.Queue()
     costo_d = mp.Queue()
+    costo_e = mp.Queue()
+    costo_f = mp.Queue()
 
     while 50>i:
         i += 1
-        ordenes_tr = g.transformacion(ordenes)
-        pob1 = g.poblacion[0:2].copy()
-        pob2 = g.poblacion[3:5].copy()
-        pob3 = g.poblacion[6:8].copy()
-        pob4 = g.poblacion[9:11].copy()
 
-        p1 = mp.Process(target=g.calculo, args=(ordenes_tr, pob1, costo_a))
-        p2 = mp.Process(target=g.calculo, args=(ordenes_tr, pob2, costo_b))
-        p3 = mp.Process(target=g.calculo, args=(ordenes_tr, pob3, costo_c))
-        p4 = mp.Process(target=g.calculo, args=(ordenes_tr, pob4, costo_d))
+        # ordenes_tr = g.transformacion(ordenes)
+        pob1 = g.poblacion[0:2].copy()
+        pob2 = g.poblacion[2:4].copy()
+        pob3 = g.poblacion[4:6].copy()
+        pob4 = g.poblacion[6:8].copy()
+        pob5 = g.poblacion[8:10].copy()
+        pob6 = g.poblacion[10:12].copy()
+
+        p1 = mp.Process(target=g.calculo, args=(ordenes, pob1, costo_a))
+        p2 = mp.Process(target=g.calculo, args=(ordenes, pob2, costo_b))
+        p3 = mp.Process(target=g.calculo, args=(ordenes, pob3, costo_c))
+        p4 = mp.Process(target=g.calculo, args=(ordenes, pob4, costo_d))
+        p5 = mp.Process(target=g.calculo, args=(ordenes, pob5, costo_e))
+        p6 = mp.Process(target=g.calculo, args=(ordenes, pob6, costo_f))
         
         p1.start()
         p2.start()
         p3.start()
         p4.start()
-
-        costo_t = []
-        costo_t = costo_a.get() + costo_b.get() + costo_c.get() + costo_d.get()
-        costo = g.seleccion(costo_t)
+        p5.start()
+        p6.start()
 
         p1.join()
         p2.join()
         p3.join()
         p4.join()
+        p5.join()
+        p6.join()
+
+        costo_t = []
+        costo_t = costo_a.get() + costo_b.get() + costo_c.get() + costo_d.get() + costo_e.get() + costo_f.get()
+        costo = g.seleccion(costo_t)
 
         p1.close()
         p2.close()
         p3.close()
         p4.close()
+        p5.close()
+        p6.close()
         
         print(f"Generacion: {i-1} \t\t Costo: {costo[0]}")
         g.cruce()
         
 
-    g.calculo(ordenes_tr, g.poblacion, costo_a)
+    g.calculo(ordenes, g.poblacion, costo_a)
     costo = g.seleccion(costo_a.get())
     print("Generacion: ", i)
     print("Mejor solucion: ", g.seleccionados[0])
