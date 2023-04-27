@@ -187,7 +187,7 @@ if __name__ == "__main__":
     
     print(f"Poblacion inicial:\t\tCosto: {costo[0]}")
 
-    while 100>k:
+    while 50>k:
         k += 1
         g.cruce() 
 
