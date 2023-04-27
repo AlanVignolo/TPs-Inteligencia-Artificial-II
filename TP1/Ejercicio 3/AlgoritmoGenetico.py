@@ -121,12 +121,13 @@ class Genetico:
                     if l == len(hijo1):
                         l = 0
             # MuTACION
-            while True:
-                cut1 = random.randint(0, len(nueva_generacion[k]) - 1)
-                cut2 = random.randint(0, len(nueva_generacion[k+1]) - 1)
-                if cut1 != cut2:
-                    break
-            hijo1[cut1], hijo1[cut2] = hijo1[cut2], hijo1[cut1]
+            if (random.random() < 0.5):
+                while True:
+                    cut1 = random.randint(0, len(nueva_generacion[k]) - 1)
+                    cut2 = random.randint(0, len(nueva_generacion[k+1]) - 1)
+                    if cut1 != cut2:
+                        break
+                hijo1[cut1], hijo1[cut2] = hijo1[cut2], hijo1[cut1]
 
             nueva_generacion[k] = hijo1
             nueva_generacion[k+1] = hijo2
@@ -187,7 +188,7 @@ if __name__ == "__main__":
     
     print(f"Poblacion inicial:\t\tCosto: {costo[0]}")
 
-    while 50>k:
+    while 300>k:
         k += 1
         g.cruce() 
 
