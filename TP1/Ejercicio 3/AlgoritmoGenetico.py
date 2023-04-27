@@ -52,7 +52,7 @@ class Genetico:
     
     # Funcion que realiza el coss-over
     def cruce(self):
-        nueva_generacion = np.zeros((16, 120))
+        nueva_generacion = np.zeros((12, 120))
         k2 = 999
         k1 = 0
         # Reordenamiento para la nueva generacion
@@ -66,7 +66,7 @@ class Genetico:
                     break
 
         # Cross over
-        for k in range(0, 12, 2):
+        for k in range(0, len(nueva_generacion), 2):
             cut1 = random.randint(0, len(nueva_generacion[k]) - 1)
             cut2 = random.randint(0, len(nueva_generacion[k+1]) - 1)
 
@@ -131,11 +131,12 @@ class Genetico:
             nueva_generacion[k] = hijo1
             nueva_generacion[k+1] = hijo2
 
-        nueva_generacion[0] = self.seleccionados[0]
-        nueva_generacion[1] = self.seleccionados[1]
-        nueva_generacion[2] = self.seleccionados[2]
-        nueva_generacion[3] = self.seleccionados[3]
-        self.poblacion = nueva_generacion.copy()
+        # Mantengo a los padres en la poblacion y agrego a los hijos
+        self.poblacion[0] = self.seleccionados[0]
+        self.poblacion[1] = self.seleccionados[1]
+        self.poblacion[2] = self.seleccionados[2]
+        self.poblacion[3] = self.seleccionados[3]
+        self.poblacion[4:] = nueva_generacion
 
 if __name__ == "__main__":
     start_time = time.time()
@@ -185,10 +186,10 @@ if __name__ == "__main__":
         proceso.close()
     
     print(f"Poblacion inicial:\t\tCosto: {costo[0]}")
-    g.cruce()  
 
-    while 10>k:
+    while 100>k:
         k += 1
+        g.cruce() 
 
         poblaciones = [g.poblacion[i:i+2].copy() for i in range(4, 16, 2)]
 
@@ -206,23 +207,15 @@ if __name__ == "__main__":
         costo_m = []
         costo_m = costo_a.get() + costo_b.get() + costo_c.get() + costo_d.get() + costo_e.get() + costo_f.get()
         costo_t = g.costo_sel + costo_m
-        print(costo_t)
+
         costo = g.seleccion(costo_t)
 
         for proceso in procesos:
             proceso.close()
         
         print(f"Generacion: {k}\t\t\tCosto: {costo[0]}")
-        g.cruce()       
 
-    # g.calculo(ordenes, g.poblacion, costo_a)
-    # costo_t.clear()
-    # costo_t = costo_a.get()
-    # costo_t[:4] = g.costo_sel
-    # costo = g.seleccion(costo_t)
-    # print("Generacion: ", k)
     print("Mejor solucion: ", g.seleccionados[0])
-    # print("Costo: ", costo[0])
-    
+
     end_time = time.time()   
     print("Tiempo total de ejecución: ", end_time - start_time)
