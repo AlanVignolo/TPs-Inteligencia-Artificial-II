@@ -3,7 +3,7 @@ from Aestrella import Aestrella
 import math
 import copy
 
-class Temple ():
+class Temple():
     def __init__ (self,filas,columnas,inicio,fin,estantes):
         self.filas = filas
         self.columnas = columnas
@@ -28,20 +28,27 @@ class Temple ():
             (self.distancias).append(aux)
     
     def distanciaActual(self,suma,i):
+        distancias = copy.deepcopy(self.distancias)
         try:
             if i != len(self.estantes):
-                suma -= self.distancias[i+1] - self.distancias[i-1]
-                self.distancias[i-1] = self.Aestrella.calcularcamino(self.lista[i-1],self.lista[i])[0]
-                self.distancias[i+1] = self.Aestrella.calcularcamino(self.lista[i],self.lista[i+1])[0]
-                suma += self.distancias[i+1] + self.distancias[i-1]
+                suma -= self.distancias[i+1]
+                suma -= self.distancias[i-1]
+
+                distancias[i-1] = self.Aestrella.calcularcamino(self.lista[i-1],self.lista[i])[0]
+                distancias[i+1] = self.Aestrella.calcularcamino(self.lista[i],self.lista[i+1])[0]
+                suma = sum(self.distancias)
+  
             else:
-                suma -= self.distancias [0] - self.distancias[1] - self.distancias [-1] - self.distancias[-2]
-                self.distancias[0] = self.Aestrella.calcularcamino(self.lista[0],self.lista[1])[0]
-                self.distancias[-1] = self.Aestrella.calcularcamino(self.lista[-1],self.lista[-2])[0]
-                self.distancias[1] = self.Aestrella.calcularcamino(self.lista[1],self.lista[2])[0]
-                self.distancias[-2] = self.Aestrella.calcularcamino(self.lista[-2],self.lista[-3])[0]
-                suma += self.distancias[0] + self.distancias[-1] + self.distancias[1] + self.distancias[-2]
-            return suma 
+                suma -= self.distancias [0]
+                suma -= self.distancias[1] 
+                suma -= self.distancias [-1]
+                suma -= self.distancias[-2]
+                distancias[0] = self.Aestrella.calcularcamino(self.lista[0],self.lista[1])[0]
+                distancias[-1] = self.Aestrella.calcularcamino(self.lista[-1],self.lista[-2])[0]
+                distancias[1] = self.Aestrella.calcularcamino(self.lista[1],self.lista[2])[0]
+                distancias[-2] = self.Aestrella.calcularcamino(self.lista[-2],self.lista[-3])[0]
+                suma = sum(self.distancias)
+            return suma, distancias
         except:
             return self.suma
     
@@ -60,19 +67,30 @@ class Temple ():
         nodos_visitados = set()
         nodos_visitados.add(self.lista[0])
 
-        T = 50
-        while T > 0.01:
-            vecino = self.VariarValores()
-            vecinodist = self.distanciaActual(self.suma,vecino[1]) 
-            delta_distancia = self.suma - vecinodist
+        T = 200
 
-            if delta_distancia > 0 or math.exp(delta_distancia/T) < random.random():
+        while T > 0.1:
+
+            vecino = self.VariarValores()
+            vecinodist = self.distanciaActual(self.suma,vecino[1])
+            delta_distancia = self.suma - vecinodist[0]
+            try:
+                aux = (1/(math.exp(abs(delta_distancia)/T)))
+            except:
+                aux = 0
+
+            random1 = random.betavariate(2,5)
+
+            if delta_distancia >= 0 or  aux > random1:
                 self.lista = list(vecino[0])
+                self.suma = vecinodist[0]
+                self.distancias = vecinodist[1]
             T *= math.exp(-0.1)
+
         return self.lista
     
     def Graficarresultado(self,resultado1):
         (self.Aestrella).GraficarCamino(resultado1)
 
     def Tamaño(self,resultado):
-        return (self.Aestrella).GraficarCamino(resultado,1)
+        return self.suma

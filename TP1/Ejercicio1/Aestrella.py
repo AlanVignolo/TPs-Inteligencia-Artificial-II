@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from Grafico import Grafico
-import copy
+# import copy
 from math import dist
 
 class Aestrella():
@@ -65,6 +65,7 @@ class Aestrella():
                 if len(nodosvisitados)==2:
                     listafinal.insert(0,(nodosvisitados[-1][0],nodosvisitados[-1][1]))
                     listafinal.insert(0,(nodosvisitados[0][0],nodosvisitados[0][1]))
+                    print(listafinal)
                     return len(listafinal),listafinal,nodofinalp
                 
                 while nodosvisitados[-i-1][3] != (nodosvisitados[-i-2][0],nodosvisitados[-i-2][1]):
@@ -74,6 +75,7 @@ class Aestrella():
                 
                 if i ==len(nodosvisitados)-2:
                     listafinal.insert(0,(nodosvisitados[0][0],nodosvisitados[0][1]))
+                    print(listafinal)
                     return len(listafinal),listafinal,nodofinalp
         
     def dibujar(self,nodosvisitados,nodofinalp):    
@@ -132,3 +134,9 @@ class Aestrella():
             for i in vecfilas:
                 Obstaculos.append((i-1,j-1))
         return Obstaculos
+    
+AEstrella1 = Aestrella(4,6)
+inicio=18
+final=135
+AEstrella1.calcularcamino(inicio,final)
+AEstrella1.GraficarCamino([inicio,final])

@@ -9,6 +9,8 @@ class Grafico:
     def dibujar_grafico(self,camino,final):
         self.camino = camino
         self.final = final
+        print(self.camino)
+        print(self.final)
 
         matriz = [[0 for j in range(self.columnas)] for i in range(self.filas)]
 
@@ -22,7 +24,6 @@ class Grafico:
                 i, j = subsublist[0], subsublist[1]
                 matriz[i][j] = r
             r+=1
-
         # Pintar final
         for i, j in self.final:
             matriz[i][j] = 3
@@ -32,7 +33,6 @@ class Grafico:
             for j in range(self.columnas):
                 if matriz[i][j] == 0:
                     matriz[i][j] = 1
-
         # Crear ventana
         ventana = tk.Tk()
         ventana.title("Grafico")
@@ -47,7 +47,8 @@ class Grafico:
                 y1 = i * 30
                 x2 = x1 + 30
                 y2 = y1 + 30
-                color = "white"
+                if matriz[i][j] == 1:
+                    color = "white"
                 if matriz[i][j] == 2:
                     color = "black"
                 elif matriz[i][j] == 3:
