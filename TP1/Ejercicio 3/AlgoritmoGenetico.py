@@ -128,6 +128,7 @@ class Genetico:
                     if cut1 != cut2:
                         break
                 hijo1[cut1], hijo1[cut2] = hijo1[cut2], hijo1[cut1]
+                hijo2[cut1], hijo2[cut2] = hijo2[cut2], hijo2[cut1]
 
             nueva_generacion[k] = hijo1
             nueva_generacion[k+1] = hijo2
@@ -188,7 +189,7 @@ if __name__ == "__main__":
     
     print(f"Poblacion inicial:\t\tCosto: {costo[0]}")
 
-    while 300>k:
+    while 30>k:
         k += 1
         g.cruce() 
 
