@@ -121,17 +121,17 @@ class Genetico:
                     if l == len(hijo1):
                         l = 0
             # MuTACION
-            if (random.random() < 0.5):
-                while True:
-                    cut1 = random.randint(0, len(nueva_generacion[k]) - 1)
-                    cut2 = random.randint(0, len(nueva_generacion[k+1]) - 1)
-                    if cut1 != cut2:
-                        break
-                hijo1[cut1], hijo1[cut2] = hijo1[cut2], hijo1[cut1]
-                hijo2[cut1], hijo2[cut2] = hijo2[cut2], hijo2[cut1]
-
             nueva_generacion[k] = hijo1
             nueva_generacion[k+1] = hijo2
+        
+        for n in range(0, len(nueva_generacion)):
+            if (random.random() < 0.5):
+                while True:
+                    cut1 = random.randint(0, len(nueva_generacion[n]) - 1)
+                    cut2 = random.randint(0, len(nueva_generacion[n]) - 1)
+                    if cut1 != cut2:
+                        break
+                nueva_generacion[cut1], nueva_generacion[cut2] = nueva_generacion[cut2], nueva_generacion[cut1]
 
         # Mantengo a los padres en la poblacion y agrego a los hijos
         self.poblacion[0] = self.seleccionados[0]
