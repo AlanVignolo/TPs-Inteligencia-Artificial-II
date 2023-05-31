@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 from scipy import constants
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
+import math
 
 CONSTANTE_M = 2 # Masa del carro
 CONSTANTE_m = 1 # Masa de la pertiga
 CONSTANTE_l = 1 # Longitud dela pertiga
-
+pi = math.pi
 # Simula el modelo del carro-pendulo.
 # Parametros:
 #   t_max: tiempo maximo (inicia en 0)
@@ -21,6 +22,7 @@ def simular(t_max, delta_t, theta_0, v_0, a_0):
   a = a_0
 
   # Simular
+  z = []
   y = []
   x = np.arange(0, t_max, delta_t)
 
@@ -29,13 +31,16 @@ def simular(t_max, delta_t, theta_0, v_0, a_0):
   ## por cada valor de theta y omega que haya
   for t in x:
     a = calcula_aceleracion(theta, v, f)
+    z.append(v)
     v = v + a * delta_t
     theta = theta + v * delta_t + a * np.power(delta_t, 2) / 2
     f = LogicaDifusa(theta, v)
     y.append(theta)
 
   fig, ax = plt.subplots()
+  fig, az = plt.subplots()
   ax.plot(x, y)
+  az.plot(x,z)
 
   ax.set(xlabel='time (s)', ylabel='theta', title='Delta t = ' + str(delta_t) + " s")
   ax.grid()
@@ -49,22 +54,22 @@ def calcula_aceleracion(theta, v, f):
     denominador = CONSTANTE_l * (4/3 - (CONSTANTE_m * np.power(np.cos(theta), 2) / (CONSTANTE_M + CONSTANTE_m)))
     return numerador / denominador
 
-def LogicaDifusa():
-  posicion = ctrl.Antecedent(np.arange(-90, 91, 1), 'posicion')
-  velocidad = ctrl.Antecedent(np.arange(-1, 2, 1), 'velocidad')
+def LogicaDifusa(theta, omega):
+  posicion = ctrl.Antecedent(np.arange(-pi/30, pi/30, 0.01), 'posicion')
+  velocidad = ctrl.Antecedent(np.arange(-10, 11, 1), 'velocidad')
   fuerza = ctrl.Consequent(np.arange(-10, 11, 1), 'fuerza')
 
-  posicion['NH'] = fuzz.trimf(posicion.universe, [-90, -90, -45])
-  posicion['NL'] = fuzz.trimf(posicion.universe, [-90, -45, 0])
-  posicion['ZE'] = fuzz.trimf(posicion.universe, [-45, 0, 45])
-  posicion['PL'] = fuzz.trimf(posicion.universe, [0, 45, 90])
-  posicion['PH'] = fuzz.trimf(posicion.universe, [45, 90, 90])
+  posicion['NH'] = fuzz.trimf(posicion.universe, [-pi/30, -pi/30, -pi/60])
+  posicion['NL'] = fuzz.trimf(posicion.universe, [-pi/30, -pi/60, 0])
+  posicion['ZE'] = fuzz.trimf(posicion.universe, [-pi/60, 0, pi/60])
+  posicion['PL'] = fuzz.trimf(posicion.universe, [0, pi/60, pi/30])
+  posicion['PH'] = fuzz.trimf(posicion.universe, [pi/60, pi/30, pi/30])
 
-  velocidad['NH'] = fuzz.trimf(velocidad.universe, [-1, -0.75, -0.25])
-  velocidad['NL'] = fuzz.trimf(velocidad.universe, [-0.75, -0.4, 0])
-  velocidad['ZE'] = fuzz.trimf(velocidad.universe, [-0.25, 0, 10])
-  velocidad['PL'] = fuzz.trimf(velocidad.universe, [0, 0.4, 0.75])
-  velocidad['PH'] = fuzz.trimf(velocidad.universe, [0.25, 0.75, 1])
+  velocidad['NH'] = fuzz.trimf(velocidad.universe, [-10, -10, -5])
+  velocidad['NL'] = fuzz.trimf(velocidad.universe, [-10, -5, 0])
+  velocidad['ZE'] = fuzz.trimf(velocidad.universe, [-5, 0, 5])
+  velocidad['PL'] = fuzz.trimf(velocidad.universe, [0, 5, 10])
+  velocidad['PH'] = fuzz.trimf(velocidad.universe, [5, 10, 10])
 
   fuerza['NH'] = fuzz.trimf(fuerza.universe, [-10, -10, -5])
   fuerza['NL'] = fuzz.trimf(fuerza.universe, [-10, -5, 0])
@@ -105,10 +110,10 @@ def LogicaDifusa():
       ])
   sistema = ctrl.ControlSystemSimulation(sistema_ctrl)
 
-  sistema.input['posicion'] = -50
-  sistema.input['velocidad'] = -0.9
+  sistema.input['posicion'] = theta
+  sistema.input['velocidad'] = omega
   sistema.compute()
 
   return sistema.output['fuerza']
 
-simular(10, 0.001, -90, -0.9, 0)
+simular(10, 0.01, -5, -0.9, 0)
