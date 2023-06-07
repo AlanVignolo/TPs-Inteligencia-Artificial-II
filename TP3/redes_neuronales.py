@@ -132,8 +132,6 @@ def train(x, t, pesos, learning_rate, epochs):
         if i %1000 == 0:
             print("Loss epoch", i, ":", loss)
             print("Precision: ", precision)
-            for i in range(m):
-                print("Clase predicha: ", clases_predichas[i], "Clases: ", y[i][:])
 
         # Extraemos los pesos a variables locales
         w1 = pesos["w1"]
@@ -170,10 +168,35 @@ def train(x, t, pesos, learning_rate, epochs):
         pesos["w2"] = w2
         pesos["b2"] = b2
 
+def train_test_split(x, t, test_size):
+    # Cantidad de filas (i.e. cantidad de ejemplos)
+    m = np.size(x, 0) 
+
+    # Cantidad de ejemplos para el set de test
+    test_examples = int(m * test_size)
+
+    # Indices de los ejemplos para el set de test
+    test_indices = np.random.choice(m, test_examples, replace=False)
+
+    # Indices de los ejemplos para el set de entrenamiento
+    train_indices = np.delete(np.arange(m), test_indices)
+
+    # Set de test
+    x_test = x[test_indices]
+    t_test = t[test_indices]
+
+    # Set de entrenamiento
+    x_train = x[train_indices]
+    t_train = t[train_indices]
+
+    return x_train, x_test, t_train, t_test
 
 def iniciar(numero_clases, numero_ejemplos, graficar_datos):
     # Generamos datos
     x, t = generar_datos_clasificacion(numero_ejemplos, numero_clases)
+
+    # Division aleatoria de los datos de entrenamiento y los de test    
+    x_train, x_test, t_train, t_test = train_test_split(x, t, test_size=0.3)
 
     # Graficamos los datos si es necesario
     if graficar_datos:
@@ -189,7 +212,19 @@ def iniciar(numero_clases, numero_ejemplos, graficar_datos):
     # Entrena
     LEARNING_RATE=1
     EPOCHS=10000
-    train(x, t, pesos, LEARNING_RATE, EPOCHS)
+    train(x_train, t_train, pesos, LEARNING_RATE, EPOCHS)
+    
+    
+    # Test
+    resultados_feed_forward = ejecutar_adelante(x_test, pesos)
+    y_test = resultados_feed_forward["y"]
+    
+    clases_predichas = np.argmax(y_test, axis=1) # Por cada fila me devuelve la posicion del maximo que a su vez es la clase predicha
+    aciertos = np.sum(clases_predichas == t_test)
+    precision = aciertos / np.size(x_test, 0)
+    print("Precision: ", precision)
 
 
-iniciar(numero_clases=3, numero_ejemplos=300, graficar_datos=False)
+
+
+iniciar(numero_clases=3, numero_ejemplos=1000, graficar_datos=False)
