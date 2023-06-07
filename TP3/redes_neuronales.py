@@ -122,9 +122,18 @@ def train(x, t, pesos, learning_rate, epochs):
         #    que tomamos del array t ("target")
         loss = (1 / m) * np.sum( -np.log( p[range(m), t] ))
 
+        # Por aca parece un buen lugar para empezar, lo que tengo que hacer es calcular la precisión
+        # Para esto necesito calcular el numero de aciertos/ cantidad de ejemplos(m)
+        clases_predichas = np.argmax(y, axis=1) # Por cada fila me devuelve la posicion del maximo que a su vez es la clase predicha
+        aciertos = np.sum(clases_predichas == t)
+        precision = aciertos / m
+
         # Mostramos solo cada 1000 epochs
         if i %1000 == 0:
             print("Loss epoch", i, ":", loss)
+            print("Precision: ", precision)
+            for i in range(m):
+                print("Clase predicha: ", clases_predichas[i], "Clases: ", y[i][:])
 
         # Extraemos los pesos a variables locales
         w1 = pesos["w1"]
